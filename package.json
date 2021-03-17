@@ -1,0 +1,16 @@
+{
+  "name": "test-vd-nodejs",
+  "version": "0.0.1",
+  "description": "Toadman NodeJS test solution",
+  "private": true,
+  "license": "LicenseRef-LICENSE",
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha --parallel tests/api.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^8.3.1",
+    "supertest": "^6.1.3"
+  }
+}

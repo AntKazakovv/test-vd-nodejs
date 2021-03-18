@@ -1,45 +1,104 @@
 const url = require('url');
+const fs = require("fs")
 
 module.exports.Router = class {
     handlers = []
     res = null
     req = null
-    runHandler(pathname, params, method){
-
-        for( let item of this.handlers ) {
-            if(method == 'get'){
-                console.log(pathname, item.route)
-                if( pathname === item.route &&  JSON.stringify(params)==JSON.stringify(item.params)){
-                    item.callback()
-                    return null
-                }
-            }         
+    auth = null
+    body = null
+    setHeaders(headers){
+        for(let header in headers){
+            this.res.setHeader(header, headers[header])
         }
-        this.send('Данный запрос не обрабатывается')
+    }
+    findGetHandler(pathname, params, method){
+        for( let item of this.handlers ) {
+            if( pathname === item.route && method === item.method &&  JSON.stringify(params)===JSON.stringify(item.params)){
+                return item
+            }
+        }
+        return false
+    }
+    runHandler(pathname, params, method){   
+        let targetHandler = this.findGetHandler(pathname, params, method)
+        if( targetHandler ){
+            if(this.req.headers['authorization']){
+                this.auth = this.req.headers['authorization']
+            }
+            if(method === 'get'){
+                this.setHeaders({
+                    'Content-Type': "text/html; charset=utf-8;"
+                })
+            }
+            else{
+                this.setHeaders({
+                    'Content-Type': "application/json;"
+                })   
+            }
+
+            targetHandler.callback()
+        }
+        else{
+            this.send('Данный запрос не обрабатывается')
+        }
+        
     }
     get(route, params, callback){
-        this.handlers.push({
-                route,
-                params,
-                method: 'get',
-                callback: callback.bind(this)
-            }
-        )
+        if( !this.findGetHandler(route, params, 'get') ){
+            this.handlers.push({
+                    route,
+                    params,
+                    method: 'get',
+                    callback: callback.bind(this)
+                }
+            )
+        }
+        else{
+            throw new Error(`Обработчик "${route}" с параметрами <${params}> был реализован ранее`)
+        }
+
     }
-    post(route, callback){
+    post(route, params, callback){
+        if( !this.findGetHandler(route, params, 'post') ){
             this.handlers.push({
                 route,
+                params,
                 method: 'post',
                 callback: callback.bind(this)
-            }
-        )
+            })
+        }
+        else{
+            throw new Error(`Обработчик "${route}" с параметрами <${params}> был реализован ранее`)
+        }
     }
-    send(msg){
+    send(msg, status=200){
         // добавить поддержку отправки кода
+        this.res.statusCode = status
         this.res.end(msg)
     }
 
-}
+    getParams(){
+        return (url.parse(this.req.url, true)).query
+    }
 
-// Router.get('/test', {a: 1}, ()=>{})
-// console.log(Router.handlers)
+    getPayload(){
+        if( this.req.method == 'GET' ){
+            return {}
+        }
+        return this.body
+    }
+
+    sendFile(path){
+        fs.access(path, fs.constants.R_OK, err => {
+            // если произошла ошибка - отправляем статусный код 404
+            if(err){
+                this.send("Ресурс не найден", 404)
+            }
+            else{
+                fs.createReadStream(path).pipe(this.res);
+            }
+          });
+    }
+
+}

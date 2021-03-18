@@ -25,7 +25,7 @@ let server = new http.Server(function(req, res) {
 
             let data = contentType === 'application/json' ? JSON.parse(body) : body 
             let urlRequest = url.parse(req.url, true);
-            r.routes.body = body
+            r.routes.body = data
             r.routes.runHandler(urlRequest.pathname, Object.keys(urlRequest.query), 'post')
         });
     }
@@ -33,6 +33,8 @@ let server = new http.Server(function(req, res) {
         res.end('<h1>Не умею работать с чем то кроме GET/POST</h1>')
     }
 });
+
+module.exports.server = server
 
 console.info('Start server!')
 server.listen(3001, 'localhost');

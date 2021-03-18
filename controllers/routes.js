@@ -36,6 +36,15 @@ router.post('/sum', ['x'], function(){
     this.send(JSON.stringify({'result': sum}))
 })
 
+
+router.post('/sum', [], function(){
+    let params = this.getPayload()
+    
+    sum +=  !(params.x % 2) ? Number(params.x) : 0
+    this.send(JSON.stringify({'result': sum}))
+    this.send('')
+})
+
 var sortedArray = []
 router.post('/sort', ['x'], function(){
     let params = this.getParams()

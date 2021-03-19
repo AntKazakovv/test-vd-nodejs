@@ -31,30 +31,39 @@ router.get('/admin', [], function(){
     }
 })
 
-var sum = 0
 //в запросе передаются слогаемые x, если они удовлетворяют условию четности, то входят в сумму
 // ? возможно я не правильно понял задачу, но вот реализация как я это понял )
 router.post('/sum', ['x'], function(){
     let params = this.getParams()
-    sum +=  !(params.x % 2) ? Number(params.x) : 0
-    this.send(JSON.stringify({'result': sum}))
+    if( !Array.isArray(params.x) ){
+        params.x = [params.x]
+    }
+    let result = params.x.reduce( (sum, numb) => { return sum += !(numb % 2) ? Number(numb) : 0 }, 0)
+    this.send(JSON.stringify({'result': result}))
 })
+
 
 // и на всякий случай с передачей x в формате json через тело запроса
 router.post('/sum', [], function(){
     let params = this.getPayload()
-    
-    sum +=  !(params.x % 2) ? Number(params.x) : 0
-    this.send(JSON.stringify({'result': sum}))
-    this.send('')
+    if( !Array.isArray(params.x) ){
+        params.x = [params.x]
+    }
+    let result = params.x.reduce( (sum, numb) => { return sum += !(numb % 2) ? Number(numb) : 0 }, 0)
+    this.send(JSON.stringify({'result': result}))
 })
 
-var sortedArray = []
+
 router.post('/sort', ['x'], function(){
     let params = this.getParams()
-    sortedArray.push( Number(params.x) )
-    sortedArray.sort( (a,b)=> { return a-b } )
-    this.send(JSON.stringify({'result': sortedArray}))
+    if( !Array.isArray(params.x) ){
+        params.x = [params.x]
+    }
+    let result = params.x
+                    .map( i => Number(i) )
+                    .sort( (a,b)=> { return a-b } )
+
+    this.send(JSON.stringify({'result': result}))
 })
 
 

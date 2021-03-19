@@ -48,28 +48,20 @@ describe('GET /admin', function() {
 })
 
 describe('POST /sum', function() {
-    it('json request with x=2', function(done) {
+    it('json request with x=[1,2,3,4]', function(done) {
         request(app.server)
             .post('/sum')
-            .send({x:2})
-            .set('Accept', 'application/json')
-            .expect(200, {"result": 2} ,done)
-    })
-
-    it('json request with x=4', function(done) {
-        request(app.server)
-            .post('/sum')
-            .send({x:4})
+            .send({x:[1,2,3,4]})
             .set('Accept', 'application/json')
             .expect(200, {"result": 6} ,done)
-
     })
+
 
     it('request with x=2', function(done) {
         request(app.server)
             .post('/sum?x=2')
             .set('Accept', 'plain/text')
-            .expect(200, {"result": 8} ,done)
+            .expect(200, {"result": 2} ,done)
 
     }) 
     
@@ -77,28 +69,45 @@ describe('POST /sum', function() {
         request(app.server)
             .post('/sum?x=3')
             .set('Accept', 'plain/text')
-            .expect(200, {"result": 8} ,done)
+            .expect(200, {"result": 0} ,done)
 
     })
+
+    it('request with x1=1', function(done) {
+        request(app.server)
+            .post('/sum?x1=1')
+            .set('Accept', 'plain/text')
+            .expect(404,done)
+    })
+
+    it('request with x=1,2,5,10', function(done) {
+        request(app.server)
+            .post('/sum?x=1&x=2&x=5&x=10')
+            .set('Accept', 'plain/text')
+            .expect(200, {"result": 12} ,done)
+    })
+
 })
 
 describe('POST /sort', function() {
-    it('request with x=10', function(done) {
+    it('request with x=2', function(done) {
         request(app.server)
-            .post('/sort?x=10')
+            .post('/sort?x=2')
             .set('Accept', 'plain/text')
-            .expect(200, {"result": [10]} ,done)
+            .expect(200, {"result": [2]} ,done)
     }) 
-    it('request with x=5', function(done) {
+
+    it('request with x1=1', function(done) {
         request(app.server)
-            .post('/sort?x=5')
+            .post('/sort?x1=1')
             .set('Accept', 'plain/text')
-            .expect(200, {"result": [5,10]} ,done)
+            .expect(404, done)
     }) 
-    it('request with x=23', function(done) {
+
+    it('request with x=[5,1,2,10]', function(done) {
         request(app.server)
-            .post('/sort?x=23')
+            .post('/sort?x=5&x=1&x=2&x=10')
             .set('Accept', 'plain/text')
-            .expect(200, {"result": [5,10,23]} ,done)
-    }) 
+            .expect(200, {"result": [1,2,5,10]} ,done)
+    })
 })

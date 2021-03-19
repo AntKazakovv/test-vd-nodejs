@@ -45,7 +45,7 @@ module.exports.Router = class {
             targetHandler.callback()
         }
         else{
-            this.send('Данный запрос не обрабатывается')
+            this.send('Данный запрос не обрабатывается', 404)
         }
         
     }

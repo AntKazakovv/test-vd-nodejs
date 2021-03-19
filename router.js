@@ -2,16 +2,20 @@ const url = require('url');
 const fs = require("fs")
 
 module.exports.Router = class {
-    handlers = []
+    handlers = [] // список объектов описывающих хендлеры
     res = null
     req = null
     auth = null
     body = null
+
     setHeaders(headers){
         for(let header in headers){
             this.res.setHeader(header, headers[header])
         }
     }
+    // по заданным пути, списку параметров и методу проверить,
+    // есть ли в handlers соответствующий обработчик, вернуть его,
+    // в противном случае, вернуть false
     findGetHandler(pathname, params, method){
         for( let item of this.handlers ) {
             if( pathname === item.route && method === item.method &&  JSON.stringify(params)===JSON.stringify(item.params)){
@@ -20,9 +24,10 @@ module.exports.Router = class {
         }
         return false
     }
+    // запустить выполнение обработчика
     runHandler(pathname, params, method){   
         let targetHandler = this.findGetHandler(pathname, params, method)
-        if( targetHandler ){
+        if( targetHandler ){ // в случае, если у нас есть обработчик для текущего запроса
             if(this.req.headers['authorization']){
                 this.auth = this.req.headers['authorization']
             }
@@ -45,7 +50,7 @@ module.exports.Router = class {
         
     }
     get(route, params, callback){
-        if( !this.findGetHandler(route, params, 'get') ){
+        if( !this.findGetHandler(route, params, 'get') ){ // если уже нет такого хендлера
             this.handlers.push({
                     route,
                     params,
@@ -73,7 +78,6 @@ module.exports.Router = class {
         }
     }
     send(msg, status=200){
-        // добавить поддержку отправки кода
         this.res.statusCode = status
         this.res.end(msg)
     }

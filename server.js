@@ -1,28 +1,30 @@
 const http = require('http');
 const url = require('url');
-const r = require('./controllers/routes')
+const r = require('./controllers/routes') // подключаем роутер
 // const routing = require('./routing');
 
 
 let server = new http.Server(function(req, res) {
- 
-    var dataString = '';
 
-    res.setHeader('Content-Type', 'application/json');
+    // запоминает response и request в routes
     r.routes.res = res
     r.routes.req = req
-    if( req.method == 'GET' ){
+    if( req.method === 'GET' ){
         let urlRequest = url.parse(req.url, true);
+        // запустить обработчик для данного request
         r.routes.runHandler(urlRequest.pathname, Object.keys(urlRequest.query), 'get')
     }
-    else if( req.method == 'POST'){
+    else if( req.method === 'POST'){
         let body = '';
+        // собираем тело запроса воедино из нескольких чанков
         req.on('data', chunk => {
             body += chunk.toString();
         });
+        //обрабатываем тело и сам запрос
         req.on('end', () => {
+            
             let contentType = req.headers['content-type']
-
+            // пробуем распарсить body в json
             let data = contentType === 'application/json' ? JSON.parse(body) : body 
             let urlRequest = url.parse(req.url, true);
             r.routes.body = data
@@ -37,4 +39,4 @@ let server = new http.Server(function(req, res) {
 module.exports.server = server
 
 console.info('Start server!')
-server.listen(3001, 'localhost');
+server.listen(3000, 'localhost');

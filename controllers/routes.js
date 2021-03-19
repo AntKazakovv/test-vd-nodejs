@@ -1,9 +1,12 @@
 const r = require('../router')
 
-
+/*
+    Модуль для описания хендлеров get и post запросов
+    Используем для этого самописный модуль router
+*/
 let router = new r.Router()
 
-
+// создаем обработчик get, передаем в него path, название параметров и callback
 router.get('/source', [], function(){
     this.sendFile(__dirname + '/routes.js')
 })
@@ -30,13 +33,14 @@ router.get('/admin', [], function(){
 
 var sum = 0
 //в запросе передаются слогаемые x, если они удовлетворяют условию четности, то входят в сумму
+// ? возможно я не правильно понял задачу, но вот реализация как я это понял )
 router.post('/sum', ['x'], function(){
     let params = this.getParams()
     sum +=  !(params.x % 2) ? Number(params.x) : 0
     this.send(JSON.stringify({'result': sum}))
 })
 
-
+// и на всякий случай с передачей x в формате json через тело запроса
 router.post('/sum', [], function(){
     let params = this.getPayload()
     
